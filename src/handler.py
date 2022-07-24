@@ -14,7 +14,7 @@ def shipping_quote():
     weight = request_data["peso"]
 
     if weight <= 0:
-        return {"body": []}
+        return {"data": []}
 
     transporters = Transporter.check_delivery_availability(height, width)
 
