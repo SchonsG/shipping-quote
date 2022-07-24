@@ -1,0 +1,95 @@
+openapi: 3.0.1
+info:
+  title: Shipping Quote
+  description: Provides a service interface to request informations about shipping quote.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:5000/
+    description: Development API
+
+x-amazon-apigateway-cors:
+  allowOrigins:
+    - "*"
+  allowMethods:
+    - "OPTIONS"
+    - "POST"
+  allowHeaders:
+    - "content-type"
+
+paths:
+  /shipping-quote:
+    post:
+      tags:
+        - shipping-quote
+      summary: Request informations about shipping quote.
+      description: Returns informations about value, delivery time and name from availability transporter.
+      requestBody:
+        description: Shipping Quote payload
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShippingQuoteRequest"
+            examples:
+              request:
+                $ref: "#/components/examples/ShippingQuoteRequestExample"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShippingQuoteResponse"
+              examples:
+                response:
+                  $ref: "#/components/examples/ShippingQuoteResponseExample"
+        500:
+          description: Internal Server Error
+          content: {}
+
+components:
+  schemas:
+    ShippingQuoteRequest:
+      type: object
+      properties:
+        dimensao:
+          type: object
+          properties:
+            altura:
+              type: integer
+            largura:
+              type: integer
+        peso:
+          type: integer
+    ShippingQuoteResponse:
+      type: object
+      properties:
+        transporters:
+          type: array
+          items:
+            type: object
+            properties:
+              nome:
+                type: string
+              valor_frete:
+                type: integer
+              prazo_dias:
+                type: integer
+
+  examples:
+    ShippingQuoteRequestExample:
+      summary: Shipping Quote request example
+      value:
+        dimensao:
+          altura: 12.00
+          largura: 6
+        peso: 400
+    ShippingQuoteResponseExample:
+      summary: Shipping Quote response example
+      value:
+        - nome: Entrega KaBum
+          valor_frete: 8
+          prazo_dias: 4
+        - nome: Entrega Ninja
+          valor_frete: 12.00
+          prazo_dias: 6
