@@ -1,51 +1,22 @@
+import json
 import unittest
 
-from pony.orm import db_session
-from src.handler import shipping_quote
-from src.models import Transporter
+from src.handler import app
+
+app.testing = True
 
 
 class TestHandler(unittest.TestCase):
-    @classmethod
-    @db_session
-    def setUpClass(cls):
-        Transporter(
-            name="Entrega Ninja",
-            constant=0.3,
-            max_height=200,
-            min_height=10,
-            max_width=140,
-            min_width=6,
-            delivery_time=6,
+    def test_shipping_quote_multiple_outputs(self):
+        data = json.dumps(
+            {
+                "dimensao": {
+                    "altura": 102,
+                    "largura": 40,
+                },
+                "peso": 400,
+            }
         )
-
-        Transporter(
-            name="Entrega KaBuM",
-            constant=0.2,
-            max_height=140,
-            min_height=5,
-            max_width=125,
-            min_width=13,
-            delivery_time=4,
-        )
-
-        return super().setUpClass()
-
-    @classmethod
-    @db_session
-    def tearDownClass(cls):
-        Transporter.select().delete(bulk=True)
-
-        return super().tearDownClass()
-
-    def test_shipping_quote_all_outputs(self):
-        entry = {
-            "dimensao": {
-                "altura": 102,
-                "largura": 40,
-            },
-            "peso": 400,
-        }
 
         expected = [
             {
@@ -60,18 +31,25 @@ class TestHandler(unittest.TestCase):
             },
         ]
 
-        result = shipping_quote(entry)
+        with app.test_client() as client:
+            response = client.post(
+                "/shipping-quote", data=data, content_type="application/json"
+            )
 
-        self.assertListEqual(result["body"], expected)
+        data_response = json.loads(response.data)
+
+        self.assertListEqual(data_response["data"], expected)
 
     def test_shipping_quote_one_output(self):
-        entry = {
-            "dimensao": {
-                "altura": 152,
-                "largura": 50,
-            },
-            "peso": 850,
-        }
+        data = json.dumps(
+            {
+                "dimensao": {
+                    "altura": 152,
+                    "largura": 50,
+                },
+                "peso": 850,
+            }
+        )
 
         expected = [
             {
@@ -81,36 +59,55 @@ class TestHandler(unittest.TestCase):
             }
         ]
 
-        result = shipping_quote(entry)
+        with app.test_client() as client:
+            response = client.post(
+                "/shipping-quote", data=data, content_type="application/json"
+            )
 
-        self.assertListEqual(result["body"], expected)
+        data_response = json.loads(response.data)
+
+        self.assertListEqual(data_response["data"], expected)
 
     def test_shipping_quote_without_output(self):
-        entry = {
-            "dimensao": {
-                "altura": 230,
-                "largura": 162,
-            },
-            "peso": 5600,
-        }
+        data = json.dumps(
+            {
+                "dimensao": {
+                    "altura": 230,
+                    "largura": 162,
+                },
+                "peso": 5600,
+            }
+        )
 
         expected = []
 
-        result = shipping_quote(entry)
+        with app.test_client() as client:
+            response = client.post(
+                "/shipping-quote", data=data, content_type="application/json"
+            )
 
-        self.assertListEqual(result["body"], expected)
+        data_response = json.loads(response.data)
+
+        self.assertListEqual(data_response["data"], expected)
 
     def test_shipping_quote_without_necessary_weight(self):
-        entry = {
-            "dimensao": {
-                "altura": 140,
-                "largura": 40,
-            },
-            "peso": 0,
-        }
+        data = json.dumps(
+            {
+                "dimensao": {
+                    "altura": 140,
+                    "largura": 40,
+                },
+                "peso": 0,
+            }
+        )
 
         expected = []
 
-        result = shipping_quote(entry)
+        with app.test_client() as client:
+            response = client.post(
+                "/shipping-quote", data=data, content_type="application/json"
+            )
 
-        self.assertListEqual(result["body"], expected)
+        data_response = json.loads(response.data)
+
+        self.assertListEqual(data_response["data"], expected)
