@@ -1,9 +1,43 @@
 import unittest
 
+from pony.orm import db_session
 from src.handler import shipping_quote
+from src.models import Transporter
 
 
 class TestHandler(unittest.TestCase):
+    @classmethod
+    @db_session
+    def setUpClass(cls):
+        Transporter(
+            name="Entrega Ninja",
+            constant=0.3,
+            max_height=200,
+            min_height=10,
+            max_width=140,
+            min_width=6,
+            delivery_time=6,
+        )
+
+        Transporter(
+            name="Entrega KaBuM",
+            constant=0.2,
+            max_height=140,
+            min_height=5,
+            max_width=125,
+            min_width=13,
+            delivery_time=4,
+        )
+
+        return super().setUpClass()
+
+    @classmethod
+    @db_session
+    def tearDownClass(cls):
+        Transporter.select().delete(bulk=True)
+
+        return super().tearDownClass()
+
     def test_shipping_quote_all_outputs(self):
         entry = {
             "dimensao": {
@@ -28,7 +62,7 @@ class TestHandler(unittest.TestCase):
 
         result = shipping_quote(entry)
 
-        self.assertListEqual(result, expected)
+        self.assertListEqual(result["body"], expected)
 
     def test_shipping_quote_one_output(self):
         entry = {
@@ -49,7 +83,7 @@ class TestHandler(unittest.TestCase):
 
         result = shipping_quote(entry)
 
-        self.assertListEqual(result, expected)
+        self.assertListEqual(result["body"], expected)
 
     def test_shipping_quote_without_output(self):
         entry = {
@@ -64,7 +98,7 @@ class TestHandler(unittest.TestCase):
 
         result = shipping_quote(entry)
 
-        self.assertListEqual(result, expected)
+        self.assertListEqual(result["body"], expected)
 
     def test_shipping_quote_without_necessary_weight(self):
         entry = {
@@ -79,4 +113,4 @@ class TestHandler(unittest.TestCase):
 
         result = shipping_quote(entry)
 
-        self.assertListEqual(result, expected)
+        self.assertListEqual(result["body"], expected)
