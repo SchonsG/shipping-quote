@@ -72,7 +72,7 @@ components:
               nome:
                 type: string
               valor_frete:
-                type: integer
+                type: number
               prazo_dias:
                 type: integer
 
@@ -91,5 +91,5 @@ components:
           valor_frete: 8
           prazo_dias: 4
         - nome: Entrega Ninja
-          valor_frete: 12.00
+          valor_frete: 12.50
           prazo_dias: 6
