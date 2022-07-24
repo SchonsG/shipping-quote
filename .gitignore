@@ -6,3 +6,33 @@
 
 # VS code settings
 .vscode
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+*__pycache__*
+*.py[cod]
+*$py.class
