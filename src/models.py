@@ -4,7 +4,7 @@ from pony.orm import Database, PrimaryKey, Required, db_session
 
 from .settings import DB_SETTINGS
 
-db = Database()
+db = Database(**DB_SETTINGS)
 
 
 class Transporter(db.Entity):
@@ -16,7 +16,6 @@ class Transporter(db.Entity):
     max_width = Required(int)
     min_width = Required(int)
     delivery_time = Required(int)
-    active = Required(bool, default=True)
     updated_at = Required(datetime, default=datetime.utcnow())
     created_at = Required(datetime, default=datetime.utcnow())
 
@@ -24,7 +23,10 @@ class Transporter(db.Entity):
     @db_session
     def check_delivery_availability(cls, height: int, width: int) -> list:
         sql = f"""
-            SELECT id, name, constant, delivery_time
+            SELECT id,
+                   name,
+                   constant,
+                   delivery_time
             FROM {cls.__name__}
             WHERE min_height <= $height
               AND max_height >= $height
@@ -40,5 +42,4 @@ class Transporter(db.Entity):
         return cls.select_by_sql(sql, params)
 
 
-db.bind(**DB_SETTINGS)
-db.generate_mapping(create_tables=True)
+db.generate_mapping()
