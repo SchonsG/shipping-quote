@@ -1,0 +1,8 @@
+# coverage files
+.coverage
+
+# .venv
+.venv
+
+# VS code settings
+.vscode
