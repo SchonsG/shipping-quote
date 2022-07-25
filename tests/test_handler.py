@@ -6,6 +6,19 @@ from src.handler import app
 app.testing = True
 
 
+def shipping_quote_request_helper(data: json) -> dict:
+    with app.test_client() as client:
+        response = client.post(
+            "/shipping-quote",
+            data=data,
+            content_type="application/json",
+        )
+
+    data_response = json.loads(response.data)
+
+    return data_response["data"]
+
+
 class TestHandler(unittest.TestCase):
     def test_shipping_quote_multiple_outputs(self):
         data = json.dumps(
@@ -31,14 +44,9 @@ class TestHandler(unittest.TestCase):
             },
         ]
 
-        with app.test_client() as client:
-            response = client.post(
-                "/shipping-quote", data=data, content_type="application/json"
-            )
+        result = shipping_quote_request_helper(data)
 
-        data_response = json.loads(response.data)
-
-        self.assertListEqual(data_response["data"], expected)
+        self.assertListEqual(result, expected)
 
     def test_shipping_quote_one_output(self):
         data = json.dumps(
@@ -59,14 +67,9 @@ class TestHandler(unittest.TestCase):
             }
         ]
 
-        with app.test_client() as client:
-            response = client.post(
-                "/shipping-quote", data=data, content_type="application/json"
-            )
+        result = shipping_quote_request_helper(data)
 
-        data_response = json.loads(response.data)
-
-        self.assertListEqual(data_response["data"], expected)
+        self.assertListEqual(result, expected)
 
     def test_shipping_quote_without_output(self):
         data = json.dumps(
@@ -81,14 +84,9 @@ class TestHandler(unittest.TestCase):
 
         expected = []
 
-        with app.test_client() as client:
-            response = client.post(
-                "/shipping-quote", data=data, content_type="application/json"
-            )
+        result = shipping_quote_request_helper(data)
 
-        data_response = json.loads(response.data)
-
-        self.assertListEqual(data_response["data"], expected)
+        self.assertListEqual(result, expected)
 
     def test_shipping_quote_without_necessary_weight(self):
         data = json.dumps(
@@ -103,11 +101,6 @@ class TestHandler(unittest.TestCase):
 
         expected = []
 
-        with app.test_client() as client:
-            response = client.post(
-                "/shipping-quote", data=data, content_type="application/json"
-            )
+        result = shipping_quote_request_helper(data)
 
-        data_response = json.loads(response.data)
-
-        self.assertListEqual(data_response["data"], expected)
+        self.assertListEqual(result, expected)
